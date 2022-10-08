@@ -1,13 +1,11 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include<stdio.h>
+#include<string.h>
 int main()
 {
-
-    #define MAX 100
-	const int n = 10;
-	int m = 3;
-	scanf("%d", &m);
-	printf("%d\n", m);
-	printf("%d\n", MAX);
+	int a = 3;
+	int b = 5;
+	int c = (a > b ? a : b);
+	printf("%d\n", c);
 	return 0;
 }
