@@ -93,6 +93,6 @@ void test()
 }
 int main()
 {
-	
+	cout << endl;
 	return 0;
 }
