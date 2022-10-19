@@ -90,9 +90,11 @@ void test()
 	cpu* intelcpu1 = new intelcpu;
 	videocard* intelcard1 = new intercard;
 	memory* intelmem1 = new intelmem;
+	computer computer1(intelcpu1, intelcard1, intelmem1);
+	computer1.work();
 }
 int main()
 {
-	cout << endl;
+	test();
 	return 0;
 }
