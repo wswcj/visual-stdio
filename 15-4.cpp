@@ -190,7 +190,7 @@ void test7()
 		cout << "未找到" << endl;
 	}
 }
-//binary_search
+//binary_search必须是有序序列
 void test8()
 {
 	vector<int> v1;
