@@ -1,10 +1,10 @@
 #include<iostream>
 using namespace std;
-extern const int ext;
-void test()
-{
-	cout << ext << endl;
-}
+//extern const int ext;
+//void test()
+//{
+//	cout << ext << endl;
+//}
 void test1()
 {
 	//err
