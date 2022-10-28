@@ -62,11 +62,83 @@ void test4()
 	ret = Fit(n);
 	cout << ret << endl;
 }
+void MySort(int* arr, int len)
+{
+	int temp = 0;
+	for (int i = 0; i < len-1; i++)
+	{
+		int flag = 1;
+		for (int j = 0; j < len -1 - i; j++)
+		{
+			if (arr[j] > arr[j+1])
+			{
+				temp = arr[j];
+				arr[j] = arr[j+1];
+				arr[j+1] = temp;
+				flag = 0;
+			}
+		}
+		if (flag == 1)
+			break;
+	}
+}
+void test5()
+{
+	int arr[] = { 9,8,7,6,5,4,3,2,1 };
+	int sz = sizeof(arr) / sizeof(arr[0]);
+	MySort(arr,sz);
+	for (int i = 0; i < sz; i++)
+		cout << arr[i] << " ";
+	cout << endl;
+}
+void test6()
+{
+	int a = 3;
+	int b = 5;
+	a = a ^ b;
+	b = a ^ b;
+	a = a ^ b;
+	cout << "a=" << a << "\tb=" << b << endl;
+}
+void test7()
+{
+	int arr[9] = { 1,2,3,4,5,4,3,2,1 };
+	int ret = 0;
+	for (int i = 0; i < 9; i++)
+		ret = ret ^ arr[i];
+	cout << ret << endl;
+}void test8()
+{
+	int count = 0;
+	int num = 127;
+	while (num)
+	{
+		if (num % 2 == 1)
+		{
+			count++;
+		}
+		num /= 2;
+	}
+	cout << count << endl;
+}
+void test9()
+{
+	int num = 127;
+	int count = 0;
+	for (int i = 0; i < 32; i++)
+	{
+		if (((num >> i) & 1) == 1)
+		{
+			count++;
+		}
+	}
+	cout << count << endl;
+}
 int main()
 {
 	//test1();
 	//test2();
 	//test3();
-	test4();
+	test9();
 	return 0;
 }
