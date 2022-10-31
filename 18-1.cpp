@@ -45,8 +45,25 @@ void test1()
     int ret = S1.searchInsert(v1, target);
     cout << ret << endl;
 }
+void test2()
+{
+    cout << INT_MAX << endl;
+    cout << INT32_MAX << endl;
+    int ret = (int)min(1, 2);
+    cout << ret << endl;
+}
+void test3()
+{
+    vector<int> v1(10, 0);
+    for (int i = 0; i < 10; i++)
+    {
+        cout << v1[i] << endl;
+    }
+}
 int main()
 {
-    test1();
+    //test1();
+    //test2();
+    test3();
 	return 0;
 }
