@@ -75,8 +75,30 @@ void test6() {
 	//constexpr int* n = &m;
 	constexpr int* n = 0;
 }
+void test7() {
+	constexpr int* p = nullptr;
+	//p = 
+	const int* p1 = nullptr;
+	p1 = p;
+	typedef char* pstring;
+	const pstring p2 = nullptr;
+	//p =
+	using pstring1 = char*;
+	const pstring p3 = nullptr;
+	//p3 = p2;
+}
+void test8() {
+	const int i = 10;
+	auto& a = i, * p = &i;
+	//a =
+	p = nullptr;
+	//*p = 
+	const int ci = 0, & cj = ci;
+	decltype(ci) x = 0;
+	decltype(cj) y = x;
+}
 int main() {
-	test6();
+	test7();
 	//cout << i << endl;
 	return 0;
 }
