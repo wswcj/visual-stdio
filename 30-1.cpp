@@ -3,11 +3,11 @@
 using namespace std;
 
 void test1() {
-	ptrdiff_t i = -1;//无符号
+	ptrdiff_t i = -1;//有符号
 	cout << i << endl;
-	vector<int>::difference_type j = -1;//无符号
+	vector<int>::difference_type j = -1;//有符号
 	cout << j << endl;
-	size_t a = -1;
+	size_t a = -1;//无符号
 	cout << a << endl;
 }
 void test2() {
@@ -105,6 +105,6 @@ void test7() {
 }
 
 int main() {
-	test7();
+	test1();
 	return 0;
 }
