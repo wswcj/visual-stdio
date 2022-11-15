@@ -5,9 +5,9 @@ public:
 	void getNext(int next[], string s) {
 		int j = -1;
 		next[0] = -1;
-		int i = 0;
-		while (i < s.length() - 1) {
-			if (j == -1 || s[j] == s[i]) {
+		int i = 0, len = s.length();
+		while (i < len - 1) {
+			if (j == -1 || s[i] == s[j]) {
 				i++;
 				j++;
 				next[i] = j;
@@ -18,14 +18,10 @@ public:
 		}
 	}
 	int strStr(string haystack, string needle) {
-		int* next = new int[needle.size()];
+		int len1 = haystack.length(), len2 = needle.length();
+		int* next = new int[len2];
 		getNext(next, needle);
-		if (needle.length() == 0) {
-			return 0;
-		}
 		int i = 0, j = 0;
-		int len1 = haystack.size();
-		int len2 = needle.size();
 		while (i < len1 && j < len2) {
 			if (j == -1 || haystack[i] == needle[j]) {
 				i++;
@@ -35,12 +31,10 @@ public:
 				j = next[j];
 			}
 		}
-		if (j >= needle.length()) {
-			return i - needle.length();
+		if (j >= len2) {
+			return i - len2;
 		}
-		else {
-			return -1;
-		}
+		return -1;
 	}
 	string haystack;
 	string needle;
