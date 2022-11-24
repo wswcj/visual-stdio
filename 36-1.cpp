@@ -39,11 +39,25 @@ void fooBar(int ival) {
 typedef string::size_type sz;
 string screen(sz, sz, char = ' ');
 //string screen(sz, sz, char = '*');
+//string screen(sz = 24, sz = 80, char = ' ');错误重定义默认参数
+//可以多次声明一个函数,但默认参数不能多次定义
 string screen(sz = 24, sz = 80, char);//正确的
+
 void test3() {
 	cout << endl;
 }
+int func(int a = 10, int b = 10);
+//声明有默认参数,函数实现就不能有默认参数
+//int func(int a = 10, int b = 10) {   错误的
+//	return a + b;
+//}
+int func(int a, int b) {
+	return a + b;
+}
+void test4() {
+	cout << func() << endl;
+}
 int main() {
-	test3();
+	test4();
 	return 0;
 }
