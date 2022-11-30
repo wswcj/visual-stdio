@@ -104,6 +104,48 @@ void test10() {
 	cout << "I like " << mystr << ".\n";
 
 }
+//                                cin.get()
+void test13() {
+	char c;
+	while ((c = cin.get()) != '0') {
+		cout.put(c);
+	}
+	cout << endl << "end" << endl;
+	//                            cin.get(ch)
+	char ch = 1;
+	while (ch != '0') {
+		cin.get(ch);
+		cout.put(ch);
+	}
+	cout << endl << "end" << endl;
+	//                            cin.get(ch, 10, '\n')
+	cin.ignore();//消除'\n'
+	char ch1[20];
+	cin.get(ch1, 10, '\n');
+	cin.ignore();
+	cin.get(ch1, 10);//和上一句等价
+	cout << ch1 << endl;
+	cout << "end" << endl;
+}
+//                            cin.getline()
+void test14() {
+	char ch[20];
+	cout << "Enter: ";
+	cin >> ch;
+	cout << ch << endl;
+	cout << "end" << endl;
+
+	cout << "Enter: ";
+	cin.getline(ch, 20, '/');
+	cout << ch << endl;
+	cout << "end" << endl;
+
+	cout << "Enter: ";
+	cin.ignore(1024, '\n');
+	cin.getline(ch, 20);
+	cout << ch << endl;
+	cout << "end" << endl;
+}
 //                            cin.ignore() 
 void test11() {
 	char str[30];
@@ -125,7 +167,7 @@ void test12() {
 	cin.ignore(1, EOF);//和下面效果一样
 	//cin.ignore(100, '\n');
 	cout << "请输入任意字符已结束程序" << endl;
-	cin.get();
+	cin.get();//读取一个字符
 }
 //                                  文件操作
 void test7() {
@@ -175,6 +217,6 @@ void test7() {
 
 }
 int main() {
-	test7();
+	test14();
 	return 0;
 }
