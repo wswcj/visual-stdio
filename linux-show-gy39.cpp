@@ -1,0 +1,293 @@
+#include<iostream>
+#include <termios.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <unistd.h>
+using namespace std;
+
+int* p = NULL;
+
+
+
+/*16x20*/ //0-9的模
+unsigned char numword[10][40] = {
+	/*--  文字:  0  --*/
+	/*--  宋体15;  此字体下对应的点阵为：宽x高=10x20   --*/
+	/*--  宽度不是8的倍数，现调整为：宽度x高度=16x20  --*/
+	{0x00,0x00,0x00,0x00,0x00,0x00,0x3F,0x00,0x3F,0x00,0x73,0x80,0x73,0x80,0xE1,0xC0,
+	0xE1,0xC0,0xE1,0xC0,0xE1,0xC0,0xE1,0xC0,0xE1,0xC0,0x73,0x80,0x73,0x80,0x3F,0x00,
+	0x3F,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
+
+	/*--  文字:  1  --*/
+	/*--  宋体15;  此字体下对应的点阵为：宽x高=10x20   --*/
+	/*--  宽度不是8的倍数，现调整为：宽度x高度=16x20  --*/
+	{0x00,0x00,0x00,0x00,0x00,0x00,0x0C,0x00,0x7C,0x00,0x3C,0x00,0x0C,0x00,0x0C,0x00,
+	0x0C,0x00,0x0C,0x00,0x0C,0x00,0x0C,0x00,0x0C,0x00,0x0C,0x00,0x0C,0x00,0x1E,0x00,
+	0x7F,0x80,0x00,0x00,0x00,0x00,0x00,0x00},
+
+	/*--  文字:  2  --*/
+	/*--  宋体15;  此字体下对应的点阵为：宽x高=10x20   --*/
+	/*--  宽度不是8的倍数，现调整为：宽度x高度=16x20  --*/
+	{0x00,0x00,0x00,0x00,0x00,0x00,0x3F,0x00,0x77,0x80,0x63,0x80,0x71,0x80,0x71,0x80,
+	0x03,0x80,0x03,0x00,0x06,0x00,0x0C,0x00,0x18,0x00,0x30,0x80,0x71,0x80,0xFF,0x80,
+	0xFF,0x80,0x00,0x00,0x00,0x00,0x00,0x00},
+
+	/*--  文字:  3  --*/
+	/*--  宋体15;  此字体下对应的点阵为：宽x高=10x20   --*/
+	/*--  宽度不是8的倍数，现调整为：宽度x高度=16x20  --*/
+	{0x00,0x00,0x00,0x00,0x00,0x00,0x3F,0x00,0x77,0x00,0x63,0x80,0x73,0x80,0x03,0x80,
+	0x07,0x00,0x1E,0x00,0x07,0x80,0x03,0x80,0x01,0x80,0x71,0x80,0xF3,0x80,0x77,0x80,
+	0x3F,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
+
+
+	/*--  文字:  4  --*/
+	/*--  宋体15;  此字体下对应的点阵为：宽x高=10x20   --*/
+	/*--  宽度不是8的倍数，现调整为：宽度x高度=16x20  --*/
+	{0x00,0x00,0x00,0x00,0x00,0x00,0x07,0x00,0x07,0x00,0x0F,0x00,0x1F,0x00,0x1F,0x00,
+	0x3F,0x00,0x37,0x00,0x67,0x00,0xC7,0x00,0xFF,0xC0,0x07,0x00,0x07,0x00,0x07,0x00,
+	0x1F,0xC0,0x00,0x00,0x00,0x00,0x00,0x00},
+
+	/*--  文字:  5  --*/
+	/*--  宋体15;  此字体下对应的点阵为：宽x高=10x20   --*/
+	/*--  宽度不是8的倍数，现调整为：宽度x高度=16x20  --*/
+	{0x00,0x00,0x00,0x00,0x00,0x00,0x7F,0x80,0x7F,0x00,0x60,0x00,0x60,0x00,0x60,0x00,
+	0x7F,0x00,0x77,0x80,0x63,0x80,0x01,0x80,0x21,0x80,0x71,0x80,0xE3,0x80,0x77,0x80,
+	0x3F,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
+
+	/*--  文字:  6  --*/
+	/*--  宋体15;  此字体下对应的点阵为：宽x高=10x20   --*/
+	/*--  宽度不是8的倍数，现调整为：宽度x高度=16x20  --*/
+	{0x00,0x00,0x00,0x00,0x00,0x00,0x1F,0x00,0x3B,0x80,0x73,0x80,0x70,0x00,0xE0,0x00,
+	0xFF,0x00,0xFB,0x80,0xF1,0x80,0xE1,0xC0,0xE1,0xC0,0xE1,0xC0,0x71,0x80,0x7B,0x80,
+	0x3F,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
+
+	/*--  文字:  7  --*/
+	/*--  宋体15;  此字体下对应的点阵为：宽x高=10x20   --*/
+	/*--  宽度不是8的倍数，现调整为：宽度x高度=16x20  --*/
+	{0x00,0x00,0x00,0x00,0x00,0x00,0x7F,0xC0,0x7F,0x80,0x63,0x00,0x43,0x00,0x07,0x00,
+	0x06,0x00,0x0E,0x00,0x0C,0x00,0x0C,0x00,0x1C,0x00,0x1C,0x00,0x1C,0x00,0x1C,0x00,
+	0x1C,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
+
+	/*--  文字:  8  --*/
+	/*--  宋体15;  此字体下对应的点阵为：宽x高=10x20   --*/
+	/*--  宽度不是8的倍数，现调整为：宽度x高度=16x20  --*/
+	{0x00,0x00,0x00,0x00,0x00,0x00,0x3F,0x00,0x73,0x80,0x61,0x80,0xE1,0x80,0x71,0x80,
+	0x7B,0x80,0x3E,0x00,0x7F,0x00,0x63,0x80,0xE1,0x80,0xE1,0xC0,0xE1,0x80,0x73,0x80,
+	0x3F,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
+
+	/*--  文字:  9  --*/
+	/*--  宋体15;  此字体下对应的点阵为：宽x高=10x20   --*/
+	/*--  宽度不是8的倍数，现调整为：宽度x高度=16x20  --*/
+	{0x00,0x00,0x00,0x00,0x00,0x00,0x3F,0x00,0x77,0x00,0xE3,0x80,0xE3,0x80,0xE1,0xC0,
+	0xE1,0xC0,0xE3,0xC0,0x77,0xC0,0x3F,0x80,0x03,0x80,0x03,0x80,0x73,0x80,0x77,0x00,
+	0x7E,0x00,0x00,0x00,0x00,0x00,0x00,0x00}
+
+};
+
+
+void draw_point(int x, int y, int color)
+{
+	if (x >= 0 && x < 800 && y >= 0 && y < 480)
+	{
+		*(p + y * 800 + x) = color;
+	}
+
+}
+
+void show_word(unsigned char* word1, int totalbyte, int wordwide, int wordcolor, int start_x, int start_y)
+{
+	//3.显示字 
+	int num = 0;
+	int x, y;
+	int i, j;
+	for (i = 0; i < totalbyte; i++)  //字节数
+	{
+		for (j = 7; j >= 0; j--) //每个字节8bit
+		{
+			if (word1[i] & (1 << j))   // 1 << 7 -> 1000 0000 刷一个与底色不同的颜色
+			{
+				x = num % wordwide;   //x = (i % 2) * 8 + (7 -j);
+				y = num / wordwide;   //y = i / 2;
+				draw_point(start_x + x, start_y + y, wordcolor);
+
+			}
+			num++;
+		}
+	}
+
+}
+
+void show_num(int a, int start_x, int start_y)
+{
+	if (a >= 0 && a < 10)  //只有个位 5
+	{
+		show_word(numword[a], sizeof(numword[a]), 16, 0x00FF0000, start_x, start_y);  //0
+	}
+	if (a >= 10 && a < 100) //有个位 和十位 25
+	{
+		show_word(numword[a / 10], sizeof(numword[a / 10]), 16, 0x00FF0000, start_x, start_y); //显示十位
+		show_word(numword[a % 10], sizeof(numword[a % 10]), 16, 0x00FF0000, start_x + 16, start_y);//显示十位
+	}
+	if (a >= 100 && a < 1000)//有个位 十位 和百位 125 
+	{
+		show_word(numword[a / 100], sizeof(numword[a / 100]), 16, 0x00FF0000, start_x, start_y); //显示百位
+		show_word(numword[a % 100 / 10], sizeof(numword[a % 100 / 10]), 16, 0x00FF0000, start_x + 16, start_y);
+		show_word(numword[a % 10], sizeof(numword[a % 10]), 16, 0x00FF0000, start_x + 32, start_y);
+	}
+	if (a >= 1000 && a < 10000) {
+		show_word(numword[a / 1000], sizeof(numword[a / 1000]), 16, 0x00FF0000, start_x, start_y); 
+		show_word(numword[a % 1000 / 100], sizeof(numword[a % 1000 / 100]), 16, 0x00FF0000, start_x + 16, start_y);
+		show_word(numword[a % 100 / 10], sizeof(numword[a % 100 / 10]), 16, 0x00FF0000, start_x + 32, start_y);
+		show_word(numword[a % 10], sizeof(numword[a % 10]), 16, 0x00FF0000, start_x + 48, start_y);
+	}
+	if (a >= 10000 && a < 100000) {
+		show_word(numword[a / 10000], sizeof(numword[a / 10000]), 16, 0x00FF0000, start_x, start_y); 
+		show_word(numword[a % 10000 / 1000], sizeof(numword[a % 10000 / 1000]), 16, 0x00FF0000, start_x + 16, start_y); 
+		show_word(numword[a % 1000 / 100], sizeof(numword[a % 1000 / 100]), 16, 0x00FF0000, start_x + 32, start_y);
+		show_word(numword[a % 100 / 10], sizeof(numword[a % 100 / 10]), 16, 0x00FF0000, start_x + 48, start_y);
+		show_word(numword[a % 10], sizeof(numword[a % 10]), 16, 0x00FF0000, start_x + 64, start_y);
+	}
+	//...
+}
+
+
+
+
+//初始化串口
+//file: 串口所对应的文件名
+//baudrate：波特率
+int init_serial(const char* file, int baudrate)
+{
+
+
+	int fd;
+	fd = open(file, O_RDWR);
+	if (fd == -1)
+	{
+		cerr << "open device error:";
+		return -1;
+	}
+
+	struct termios myserial;
+	//清空结构体
+	memset(&myserial, 0, sizeof(myserial));
+	//O_RDWR               
+	myserial.c_cflag |= (CLOCAL | CREAD);
+	//设置控制模式状态，本地连接，接受使能
+	//设置 数据位
+	myserial.c_cflag &= ~CSIZE;   //清空数据位
+	myserial.c_cflag &= ~CRTSCTS; //无硬件流控制
+	myserial.c_cflag |= CS8;      //数据位:8
+
+	myserial.c_cflag &= ~CSTOPB;//   //1位停止位
+	myserial.c_cflag &= ~PARENB;  //不要校验
+	//myserial.c_iflag |= IGNPAR;   //不要校验
+	//myserial.c_oflag = 0;  //输入模式
+	//myserial.c_lflag = 0;  //不激活终端模式
+
+	switch (baudrate)
+	{
+	case 9600:
+		cfsetospeed(&myserial, B9600);  //设置波特率
+		cfsetispeed(&myserial, B9600);
+		break;
+	case 115200:
+		cfsetospeed(&myserial, B115200);  //设置波特率
+		cfsetispeed(&myserial, B115200);
+		break;
+	case 19200:
+		cfsetospeed(&myserial, B19200);  //设置波特率
+		cfsetispeed(&myserial, B19200);
+		break;
+	}
+
+	/* 刷新输出队列,清除正接受的数据 */
+	tcflush(fd, TCIFLUSH);
+
+	/* 改变配置 */
+	tcsetattr(fd, TCSANOW, &myserial);
+
+	return fd;
+}
+
+int main() {
+
+
+	//1.打开帧缓冲设备文件
+	int lcd_fd = open("/dev/fb0", O_RDWR);
+	if (lcd_fd < 0)
+	{
+		cout << "open lcd_fd failed" << endl;
+	}
+	//2.映射
+	p = (int*)mmap(NULL, 800 * 480 * 4, PROT_READ | PROT_WRITE, MAP_SHARED, lcd_fd, 0);
+	if (p == MAP_FAILED)
+	{
+		cout << "mmap failed" << endl;
+	}
+
+	//刷底色->白色
+	int i, j;
+	for (i = 0; i < 480; i++)
+	{
+		for (j = 0; j < 800; j++)
+		{
+			draw_point(j, i, 0x00FFFFFF);
+		}
+	}
+
+
+	int fd = init_serial("/dev/ttySAC2", 9600);
+	unsigned char cmd[3] = { 0xA5, 0x83, 0x28 };
+	int ret = write(fd, cmd, 3);
+	if (ret == -1) {
+		cout << "Write failed" << endl;
+	}
+
+	unsigned char data[24] = { 0 };
+	int num = 0;
+	int col = 1;
+	while (1) {
+		sleep(1);
+		ret = read(fd, data, 24);
+		if (ret != 24) {
+			cout << "Read failed" << endl;
+			continue;
+		}
+		if (data[0] == 0x5A && data[1] == 0x5A && data[2] == 0x15) {
+			int lux = data[4] << 24 | data[5] << 16 | data[6] << 8 | data[7];
+			lux = lux / 100;
+			cout << "lux is " << lux << endl;
+			show_num(lux, num % 800, (num / 800) * 16);
+			num += 64;
+
+			int t = data[13] << 8 | data[14];
+			t = t / 100;
+			cout << "t is " << t << "C" << endl;
+			show_num(t, num % 800, (num / 800) * 16);
+			num += 64;
+
+			int pa = data[15] << 24 | data[16] << 16 | data[17] << 8 | data[18];
+			pa = pa / 100;
+			cout << "pa is " << pa << "pa" << endl;
+			show_num(pa, num % 800, (num / 800) * 16);
+			num += 96;
+
+			int hum = data[19] << 8 | data[20];
+			hum /= 100;
+			cout << "hum is " << hum << "%" << endl;
+			show_num(hum, num % 800, (num / 800) * 16);
+			num += 64;
+
+			int h = data[21] << 8 | data[22];
+			cout << "h is " << h << "m" << endl;
+			show_num(h, num % 800, (num / 800) * 16);
+			num = 800 * col;
+			col += 2;
+		}
+	}
+	return 0;
+}
