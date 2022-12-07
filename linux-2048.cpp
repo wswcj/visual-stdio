@@ -12,9 +12,9 @@ using namespace std;
 
 
 #define N 4
-
-int* p = NULL;
 int board[4][4] = { 0 };//棋盘大小
+int* p = NULL;
+
 bool flag = 0;   //用户是否移动
 
 void draw_point(int x, int y, int color)
