@@ -55,17 +55,14 @@ void catch (int sig)
 }
 
 
-#define N 4
-int board[4][4] = { 0 };//棋盘大小
+
 char* music[] = { (char*)"/mnt/1.mp3",(char*)"/mnt/2.mp3" };
 char* video[] = { (char*)"/mnt/1.mp4",(char*)"/mnt/2.mp4" };
-char* bmp[] = { (char*)"/mnt/1.bmp",(char*)"/mnt/2.bmp",(char*)"/mnt/3.bmp",(char*)"/mnt/4.bmp" };
-int i = 0;
-int j = 0;
-bool flag = 0;
-bool flag1 = 0;
+char* bmp[] = { (char*)"/mnt/1.bmp",(char*)"/mnt/2.bmp",(char*)"/mnt/3.bmp",(char*)"/mnt/4.bmp" ,(char*)"/mnt/5.bmp" };
+
 
 int* p = NULL;
+
 void draw_point(int x, int y, int color)
 {
 	if (x >= 0 && x < 800 && y >= 0 && y < 480)
@@ -98,14 +95,14 @@ void show_bmp(char* pathname)
 		printf("read picture_fd's colorvalue failed\n");
 	}
 	unsigned char a = 0;  //透明度 
-	int i, j;
+	int k, z;
 	int num = 0;
-	for (i = 0; i < 480; i++)  //行
+	for (k = 0; k < 480; k++)  //行
 	{
-		for (j = 0; j < 800; j++)//列
+		for (z = 0; z < 800; z++)//列
 		{
 			int color = a << 24 | buf[num + 2] << 16 | buf[num + 1] << 8 | buf[num + 0];
-			draw_point(j, 479 - i, color);  //写入帧缓冲设备文件
+			draw_point(z, 479 - k, color);  //写入帧缓冲设备文件
 			num = num + 3;
 		}
 	}
@@ -119,53 +116,28 @@ void show_bmp(char* pathname)
 }
 
 
-void show_numbmp(char* pathname, int x, int y)
-{
-	//3.打开图片文件
-	int picture_fd = open(pathname, O_RDWR);
-	if (picture_fd < 0)
-	{
-		printf("open failed");
-	}
-	//4.读取颜色值 写入帧缓冲设备文件
-	//略过文件的头
-	unsigned char head[54] = { 0 };
-	int ret = read(picture_fd, head, 54);
-	if (ret == -1)
-	{
-		printf("read failed");
-	}
-	//读取颜色值 
-	unsigned char buf[800 * 480 * 3] = { 0 };
-	ret = read(picture_fd, buf, 100 * 100 * 3);
-	if (ret == -1)
-	{
-		printf("read failed");
-	}
-	unsigned char a = 0;  //透明度 
-	int i, j;
-	int num = 0;
-	for (i = 0; i < 100; i++)  //行
-	{
-		for (j = 0; j < 100; j++)//列
-		{
-			int color = a << 24 | buf[num + 2] << 16 | buf[num + 1] << 8 | buf[num + 0];
-			draw_point(x + j, y + 99 - i, color);  //写入帧缓冲设备文件
-			num = num + 3;
-		}
-	}
 
-	//5.关闭图片文件
-	int c = close(picture_fd);
-	if (c == -1)
-	{
-		printf("close failed");
-	}
-}
 
 
 int main(int argc, char const* argv[]) // ./wav2pcm ubuntu-IP
 {
+	bool flag = 0;//音乐播放flag = 1
+	bool flag1 = 0;//视频播放flag1 = 1
+	int i = 0;//音乐下标
+	int j = 0;//视频下标
+
+	//1.打开帧缓冲设备文件 
+	int lcd_fd = open("/dev/fb0", O_RDWR);
+	if (lcd_fd < 0)
+	{
+		printf("open lcd_fd failed\n");
+	}
+	//2.映射
+	p = (int*)mmap(NULL, 800 * 480 * 4, PROT_READ | PROT_WRITE, MAP_SHARED, lcd_fd, 0);
+	if (p == MAP_FAILED)
+	{
+		printf("mmap failed\n");
+	}
 
 	signal(SIGPIPE, catch);
 	int id_num = 0;
@@ -190,7 +162,7 @@ int main(int argc, char const* argv[]) // ./wav2pcm ubuntu-IP
 	//初始化UDP的socket
 	//int udp_sockfd=udp_init();*/
 
-	
+
 
 	while (1)
 	{
@@ -214,6 +186,17 @@ int main(int argc, char const* argv[]) // ./wav2pcm ubuntu-IP
 		if (id_num == 999)
 		{
 			printf("bye-bye!\n");
+			if (flag == 1) {
+				system("ps | grep 'madplay' | awk '!/grep/{print $1}' | xargs  kill -9 2> /dev/null");
+				flag = 0;
+			}
+			if (flag1 == 1) {
+				system("ps | grep 'mplayer' | awk '!/grep/{print $1}' | xargs  kill -9 2> /dev/null");
+				flag1 = 0;
+			}
+			char cmd[30] = { 0 };
+			sprintf(cmd, "%s", bmp[4]);
+			show_bmp(cmd);
 			goto exit;
 		}
 		if (id_num == 100)
@@ -231,20 +214,33 @@ int main(int argc, char const* argv[]) // ./wav2pcm ubuntu-IP
 			printf("id: %d\n", id_num);
 
 			if (id_num == 2) {// 看看自拍
-				char cmd[25] = { 0 };
+				if (flag == 1) {
+					system("ps | grep 'madplay' | awk '!/grep/{print $1}' | xargs  kill -9 2> /dev/null");
+					flag = 0;
+				}
+				if (flag1 == 1) {
+					system("ps | grep 'mplayer' | awk '!/grep/{print $1}' | xargs  kill -9 2> /dev/null");
+					flag1 = 0;
+				}
+				char cmd[30] = { 0 };
 				sprintf(cmd, "%s", bmp[2]);
 				show_bmp(cmd);
 			}
 			if (id_num == 7)//播放音乐
 			{
+				if (flag == 1) {
+					system("ps | grep 'madplay' | awk '!/grep/{print $1}' | xargs  kill -9 2> /dev/null");
+					flag = 0;
+				}
 				if (flag1 == 1) {
 					system("ps | grep 'mplayer' | awk '!/grep/{print $1}' | xargs  kill -9 2> /dev/null");
+					flag1 = 0;
 				}
 				pid_t pid = fork();
 				if (pid == 0) {
 					char cmd[25] = { 0 };
 					sprintf(cmd, "%s", bmp[i]);
-					show_bmp((char*)cmd);
+					show_bmp(cmd);
 					char cmd1[25] = { 0 };
 					sprintf(cmd1, "madplay %s", music[i]);
 					system(cmd1);
@@ -264,6 +260,11 @@ int main(int argc, char const* argv[]) // ./wav2pcm ubuntu-IP
 				show_bmp((char*)cmd);
 				if (flag == 1) {
 					system("ps | grep 'madplay' | awk '!/grep/{print $1}' | xargs  kill -9 2> /dev/null");
+					flag = 0;
+				}
+				if (flag1 == 1) {
+					system("ps | grep 'mplayer' | awk '!/grep/{print $1}' | xargs  kill -9 2> /dev/null");
+					flag1 = 0;
 				}
 				pid_t pid = fork();
 				if (pid == 0) {
@@ -286,6 +287,11 @@ int main(int argc, char const* argv[]) // ./wav2pcm ubuntu-IP
 				show_bmp((char*)cmd);
 				if (flag == 1) {
 					system("ps | grep 'madplay' | awk '!/grep/{print $1}' | xargs  kill -9 2> /dev/null");
+					flag = 0;
+				}
+				if (flag1 == 1) {
+					system("ps | grep 'mplayer' | awk '!/grep/{print $1}' | xargs  kill -9 2> /dev/null");
+					flag1 = 0;
 				}
 				pid_t pid = fork();
 				if (pid == 0) {
@@ -301,18 +307,23 @@ int main(int argc, char const* argv[]) // ./wav2pcm ubuntu-IP
 			if (id_num == 8) {//播放视频
 				if (flag == 1) {
 					system("ps | grep 'madplay' | awk '!/grep/{print $1}' | xargs  kill -9 2> /dev/null");
+					flag = 0;
+				}
+				if (flag1 == 1) {
+					system("ps | grep 'mplayer' | awk '!/grep/{print $1}' | xargs  kill -9 2> /dev/null");
+					flag1 = 0;
 				}
 				pid_t pid = fork();
 				if (pid == 0) {
-					char cmd[25] = { 0 };
-					sprintf(cmd, "mplayer %s", video[j]);
+					char cmd[40] = { 0 };
+					sprintf(cmd, "mplayer -x 800 -y 480 -zoom %s", video[j]);
 					system(cmd);
 					exit(0);
 				}
 
 				flag1 = 1;
 			}
-			
+
 			if (id_num == 5) { //下一个
 
 				++j;
@@ -321,11 +332,12 @@ int main(int argc, char const* argv[]) // ./wav2pcm ubuntu-IP
 				}
 				if (flag1 == 1) {
 					system("ps | grep 'mplayer' | awk '!/grep/{print $1}' | xargs  kill -9 2> /dev/null");
+					flag1 = 0;
 				}
 				pid_t pid = fork();
 				if (pid == 0) {
-					char cmd[25] = { 0 };
-					sprintf(cmd, "mplayer %s", video[j]);
+					char cmd[40] = { 0 };
+					sprintf(cmd, "mplayer -x 800 -y 480 -zoom %s", video[j]);
 					system(cmd);
 					exit(0);
 				}
@@ -341,19 +353,17 @@ int main(int argc, char const* argv[]) // ./wav2pcm ubuntu-IP
 				}
 				if (flag1 == 1) {
 					system("ps | grep 'mplayer' | awk '!/grep/{print $1}' | xargs  kill -9 2> /dev/null");
+					flag1 = 0;
 				}
 				pid_t pid = fork();
 				if (pid == 0) {
-					char cmd[25] = { 0 };
-					sprintf(cmd, "mplayer %s", video[j]);
+					char cmd[40] = { 0 };
+					sprintf(cmd, "mplayer -x 800 -y 480 -zoom %s", video[j]);
 					system(cmd);
 					exit(0);
 				}
 
 				flag1 = 1;
-			}
-			else if (id_num == 9) { //打开游戏
-
 			}
 
 			said = 0;
@@ -369,6 +379,20 @@ exit:
 
 	//close(serial_fd);
 	close(sockfd);
+
+	//6.解除映射
+	int c = munmap(p, 800 * 480 * 4);
+	if (c == -1)
+	{
+		printf("munmap failed\n");
+	}
+	//7.关闭帧缓冲设备文件
+	c = close(lcd_fd);
+	if (c == -1)
+	{
+		printf("lcd_fd failed\n");
+	}
+
 	return 0;
 }
 
