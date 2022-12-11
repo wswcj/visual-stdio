@@ -133,7 +133,7 @@ void quickSort(int* a, int begin, int end) {
 	quickSort(a, key + 1, right);
 }
 void test5() {
-	int a[] = { 1, 2, 3, 4, 9, 7, 6, 5, 0 };
+	int a[] = { 5, 2, 3, 4, 9, 7, 6, 1, 0 };
 	quickSort(a, 0, 8);
 	for (int i : a) {
 		cout << i << " ";
