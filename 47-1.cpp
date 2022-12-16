@@ -1,5 +1,6 @@
 #include<iostream>
 using namespace std;
+//从小到大排序
 void down(int* a, int i, int n)  {
 	int parent = i;
 	int son = 2 * i + 1;
@@ -11,9 +12,32 @@ void down(int* a, int i, int n)  {
 			swap(a[son], a[parent]);
 			parent = son;
 		}
+		else {
+			break;
+		}
 		son = son * 2 + 1;
 	}
 }
+
+//从大到小排序
+//void down(int* a, int i, int n) {
+//
+//	int child = 2 * i + 1;
+//	int key = a[i];
+//	while (child < n) {
+//		if (child < n - 1 && a[child] > a[child + 1]) {
+//			child++;
+//		}
+//		if (key > a[child]) {
+//			swap(a[i], a[child]);
+//			i = child;
+//		}
+//		else {
+//			break;
+//		}
+//		child = child * 2 + 1;
+//	}
+//}
 void buildHeap(int* a, int n) {
 	
 	for (int i = n / 2 - 1; i >= 0; --i) {
