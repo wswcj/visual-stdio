@@ -179,7 +179,31 @@ void test11() {
 	int i = a++ && ++b && c++;
 	cout << i << " " << a << " " << b << " " << c << endl;
 }
+void test12() {
+
+	short b = 0xb600;
+	int c = 0xb6000000;
+	
+	if (b == 0xb600) {
+		cout << b << "b";
+	}
+	if (c == 0xb6000000) {
+		cout << "c" << endl;
+	}
+	char a = 1;
+	cout << sizeof(a) << endl << sizeof(+a) << endl << sizeof(!a) << endl;
+}
+void test13() {
+	int i = -1;
+	if (i > sizeof(i)) {
+		cout << ">" << endl;
+	}
+	else {
+		cout << ">" << endl;
+	}
+
+}
 int main() {
-	test11();
+	test13();
 	return 0;
 }
